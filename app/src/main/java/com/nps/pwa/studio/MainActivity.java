@@ -2,6 +2,7 @@ package com.nps.pwa.studio;
 
   import android.annotation.SuppressLint;
   import android.app.Activity;
+  import android.app.AlertDialog;
   import android.os.Bundle;
   import android.webkit.WebSettings;
   import android.webkit.WebView;
@@ -35,8 +36,16 @@ package com.nps.pwa.studio;
 
       @Override
       public void onBackPressed() {
-          if (webView.canGoBack()) webView.goBack();
-          else super.onBackPressed();
+          if (webView.canGoBack()) {
+              webView.goBack();
+          } else {
+              new AlertDialog.Builder(this)
+                  .setTitle("Quitter l'application")
+                  .setMessage("Voulez-vous vraiment quitter PWA-APK Studio ?")
+                  .setPositiveButton("Quitter", (d, w) -> finish())
+                  .setNegativeButton("Annuler", null)
+                  .show();
+          }
       }
   }
   

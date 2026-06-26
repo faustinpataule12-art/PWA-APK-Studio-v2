@@ -519,37 +519,43 @@ code{background:var(--s1);padding:2px 7px;border-radius:5px;font-family:var(--mo
     </div>
 
     <!-- GITHUB CONNEXION -->
-    <div class="card">
-      <div class="card-title">🐙 Connexion GitHub (compilateur)</div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
-        La compilation réelle se fait sur GitHub Actions (votre propre dépôt).
-        Le token reste uniquement sur cet appareil (stocké dans ce navigateur).
-      </p>
-      <label>Propriétaire / Repo (ex: nelson / nps-pwa-builder)</label>
-      <div class="form-2">
-        <input type="text" id="gh-owner" placeholder="nom-utilisateur">
-        <input type="text" id="gh-repo" placeholder="nom-du-repo">
+      <div class="card">
+        <div class="card-title">🐙 Connexion GitHub (compilateur)</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+          Entrez votre token — le dépôt et la branche se remplissent <b>automatiquement</b>.<br>
+          Le token reste uniquement sur cet appareil, jamais envoyé ailleurs.
+        </p>
+
+        <label>Personal Access Token (scope "repo" + "workflow")</label>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="flex:1" oninput="clearRepoCache()">
+          <button class="btn btn-cyan" style="white-space:nowrap;padding:10px 14px" onclick="detectRepos()">🔍 Détecter</button>
+        </div>
+
+        <div id="gh-repo-wrap" style="display:none;margin-top:10px">
+          <label>Dépôt GitHub <span id="gh-repo-count" style="color:var(--muted);font-size:11px"></span></label>
+          <select id="gh-repo-sel" onchange="onRepoSelected()" style="width:100%;padding:10px;border-radius:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px">
+            <option value="">— sélectionner un dépôt —</option>
+          </select>
+        </div>
+
+        <div id="gh-branch-wrap" style="display:none;margin-top:10px">
+          <label>Branche <span id="gh-branch-count" style="color:var(--muted);font-size:11px"></span></label>
+          <select id="gh-branch-sel" style="width:100%;padding:10px;border-radius:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px" onchange="document.getElementById('gh-branch').value=this.value">
+            <option value="">— sélectionner une branche —</option>
+          </select>
+        </div>
+
+        <!-- Champs cachés — compatibilité avec le reste du code -->
+        <input type="hidden" id="gh-owner" value="">
+        <input type="hidden" id="gh-repo" value="">
+        <input type="hidden" id="gh-branch" value="main">
+
+        <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="saveGithubConfig()">💾 Enregistrer la configuration</button>
+        <div id="gh-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
       </div>
 
-        <label>Branche GitHub</label>
-        <div class="branch-wrap" id="branch-wrap">
-          <input type="text" class="branch-inp" id="gh-branch" placeholder="🌿 Choisir une branche…" value="main" onclick="openBranchDrop()" readonly>
-          <div class="branch-drop" id="branch-drop">
-            <div class="branch-opt" onclick="setBranch('main')">🌿 main <span class="branch-tag">par défaut</span></div>
-            <div class="branch-opt" onclick="setBranch('principal')">🌿 principal</div>
-            <div class="branch-opt" onclick="setBranch('Nelson')">🌿 Nelson</div>
-            <div class="branch-opt" onclick="setBranch('devel')">🌿 devel</div>
-            <div class="branch-opt" onclick="setBranch('New World')">🌿 New World</div>
-            <div class="branch-opt edit-opt" onclick="editBranchCustom()">📝 Écrire un nom personnalisé</div>
-          </div>
-        </div>
-      <label>Personal Access Token (scope "repo" et "workflow")</label>
-      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-      <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="saveGithubConfig()">💾 Enregistrer (local, cet appareil)</button>
-      <div id="gh-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
-    </div>
-
-    <!-- ANALYSE -->
+      <!-- ANALYSE -->
     <div class="card">
       <div class="card-title">🔍 Analyse du projet</div>
       <div id="analysis-result">
@@ -797,34 +803,96 @@ document.addEventListener('DOMContentLoaded', ()=>{
     document.getElementById('c-splash-preview').textContent = f ? `✓ ${f.name} sélectionné` : 'Aucun splash sélectionné — un fond de couleur thème sera utilisé.';
   });
 
-  // Charger la config GitHub sauvegardée localement (si présente)
+  // Charger la config GitHub sauvegardée — auto-détecte repos/branches
   try{
-    const saved = JSON.parse(localStorage.getItem('nps_gh_config')||'null');
-    if(saved){
-      document.getElementById('gh-owner').value = saved.owner||'';
-      document.getElementById('gh-repo').value = saved.repo||'';
-      document.getElementById('gh-token').value = saved.token||'';
-      if(saved.branch) document.getElementById('gh-branch').value = saved.branch;
-      document.getElementById('gh-status').textContent = `✓ Configuré : ${saved.owner}/${saved.repo} · ${saved.branch||'main'}`;
+    const saved=JSON.parse(localStorage.getItem('nps_gh_config')||'null');
+    if(saved&&saved.token){
+      document.getElementById('gh-token').value=saved.token;
+      document.getElementById('gh-owner').value=saved.owner||'';
+      document.getElementById('gh-repo').value=saved.repo||'';
+      document.getElementById('gh-branch').value=saved.branch||'main';
+      document.getElementById('gh-status').textContent='✓ Configuré : '+(saved.owner||'?')+'/'+(saved.repo||'?')+' · '+(saved.branch||'main')+'  (cliquez 🔍 Détecter pour rafraîchir)';
+      setTimeout(()=>detectRepos(),600);
     }
   }catch(e){}
 });
 
-function saveGithubConfig(){
-  const owner = document.getElementById('gh-owner').value.trim();
-  const repo = document.getElementById('gh-repo').value.trim();
-  const token = document.getElementById('gh-token').value.trim();
-  const status = document.getElementById('gh-status');
-  if(!owner || !repo || !token){
-    status.textContent = '✗ Renseignez owner, repo et token avant d\'enregistrer.';
-    status.style.color = 'var(--red)';
-    return;
+function clearRepoCache(){
+    document.getElementById('gh-repo-wrap').style.display='none';
+    document.getElementById('gh-branch-wrap').style.display='none';
+    document.getElementById('gh-owner').value='';
+    document.getElementById('gh-repo').value='';
+    document.getElementById('gh-branch').value='main';
   }
-  const branch = document.getElementById('gh-branch').value.trim() || 'main';
-  localStorage.setItem('nps_gh_config', JSON.stringify({owner,repo,token,branch}));
-  status.textContent = `✓ Enregistré : ${owner}/${repo} · branche "${branch}"`;
-  status.style.color = 'var(--green)';
-}
+
+  async function detectRepos(){
+    const token=document.getElementById('gh-token').value.trim();
+    const status=document.getElementById('gh-status');
+    if(!token){status.textContent='✗ Entrez votre token d\'abord.';status.style.color='var(--red)';return;}
+    status.textContent='🔍 Détection des dépôts…';status.style.color='var(--muted)';
+    try{
+      const resp=await fetch('https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner',{
+        headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+      });
+      if(!resp.ok)throw new Error('Token invalide ou scope insuffisant (HTTP '+resp.status+')');
+      const repos=await resp.json();
+      if(!repos.length)throw new Error('Aucun dépôt trouvé pour ce token');
+      const owner=repos[0]?.owner?.login||'';
+      document.getElementById('gh-owner').value=owner;
+      const sel=document.getElementById('gh-repo-sel');
+      sel.innerHTML='<option value="">— sélectionner un dépôt —</option>';
+      repos.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=r.name+(r.private?' 🔒':'');sel.appendChild(o);});
+      document.getElementById('gh-repo-count').textContent='('+repos.length+' dépôts)';
+      document.getElementById('gh-repo-wrap').style.display='block';
+      status.textContent='✓ '+repos.length+' dépôts trouvés pour @'+owner;
+      status.style.color='var(--green)';
+      try{const saved=JSON.parse(localStorage.getItem('nps_gh_config')||'null');if(saved?.repo){sel.value=saved.repo;onRepoSelected(saved.branch);}}catch(e){}
+    }catch(e){status.textContent='✗ '+e.message;status.style.color='var(--red)';}
+  }
+
+  async function onRepoSelected(preselectBranch){
+    const owner=document.getElementById('gh-owner').value;
+    const repo=document.getElementById('gh-repo-sel').value;
+    if(!repo)return;
+    document.getElementById('gh-repo').value=repo;
+    const token=document.getElementById('gh-token').value.trim();
+    const status=document.getElementById('gh-status');
+    status.textContent='🔍 Chargement des branches…';status.style.color='var(--muted)';
+    try{
+      const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/branches?per_page=100`,{
+        headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+      });
+      if(!resp.ok)throw new Error('Branches introuvables');
+      const branches=await resp.json();
+      const sel=document.getElementById('gh-branch-sel');
+      sel.innerHTML='';
+      branches.forEach(b=>{const o=document.createElement('option');o.value=b.name;o.textContent='🌿 '+b.name;sel.appendChild(o);});
+      if(preselectBranch)sel.value=preselectBranch;
+      document.getElementById('gh-branch').value=sel.value;
+      sel.onchange=()=>document.getElementById('gh-branch').value=sel.value;
+      document.getElementById('gh-branch-count').textContent='('+branches.length+')';
+      document.getElementById('gh-branch-wrap').style.display='block';
+      status.textContent='✓ '+owner+'/'+repo+' · '+branches.length+' branche(s) — sélectionnez une branche puis enregistrez';
+      status.style.color='var(--green)';
+    }catch(e){status.textContent='✗ '+e.message;status.style.color='var(--red)';}
+  }
+
+  function saveGithubConfig(){
+    const token=document.getElementById('gh-token').value.trim();
+    const owner=document.getElementById('gh-owner').value.trim();
+    const repoSel=document.getElementById('gh-repo-sel');
+    const repo=(repoSel?.value||document.getElementById('gh-repo').value).trim();
+    const status=document.getElementById('gh-status');
+    if(!token){status.textContent='✗ Token manquant — cliquez 🔍 Détecter d\'abord.';status.style.color='var(--red)';return;}
+    if(!owner||!repo){status.textContent='✗ Sélectionnez un dépôt.';status.style.color='var(--red)';return;}
+    const brSel=document.getElementById('gh-branch-sel');
+    const branch=(brSel?.value||document.getElementById('gh-branch').value||'main').trim();
+    document.getElementById('gh-repo').value=repo;
+    document.getElementById('gh-branch').value=branch;
+    localStorage.setItem('nps_gh_config',JSON.stringify({owner,repo,token,branch}));
+    status.textContent='✓ Enregistré : '+owner+'/'+repo+' · branche "'+branch+'"';
+    status.style.color='var(--green)';
+  }
 
 function getGithubConfig(){
   try{ return JSON.parse(localStorage.getItem('nps_gh_config')||'null'); }
