@@ -338,7 +338,6 @@ code{background:var(--s1);padding:2px 7px;border-radius:5px;font-family:var(--mo
 })();
 </script>
 
-<button onclick="document.body.style.background='green'" style="position:fixed;top:0;left:0;z-index:99999;padding:20px;font-size:20px;background:#f00;color:#fff;border:none;cursor:pointer">TEST CLIC</button>
 <div id="__diag" style="position:fixed;bottom:60px;left:0;right:0;padding:6px 10px;font-size:11px;z-index:99998;text-align:center;display:none;word-break:break-all;max-height:80px;overflow:hidden"></div>
 <div id="app">
 
@@ -502,160 +501,208 @@ code{background:var(--s1);padding:2px 7px;border-radius:5px;font-family:var(--mo
   <!-- PAGE : CONVERT -->
   <div class="page" id="p-convert">
 
+    <!-- ── TABS MÉTHODES ── -->
+    <div class="card" style="padding:12px 12px 8px">
+      <div class="card-title" style="margin-bottom:10px">🚀 Méthode de compilation</div>
+      <div style="display:flex;gap:6px">
+        <button id="mtab-1" onclick="switchMethod(1)" style="flex:1;padding:10px 4px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer">📦 ZIP→APK</button>
+        <button id="mtab-2" onclick="switchMethod(2)" style="flex:1;padding:10px 4px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer">🌐 URL→APK</button>
+        <button id="mtab-3" onclick="switchMethod(3)" style="flex:1;padding:10px 4px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer">🐙 Mon dépôt</button>
+      </div>
+    </div>
+
+    <!-- ── CONFIG COMMUNE ── -->
     <div class="card">
       <div class="card-title">⚙️ Configuration de l'APK</div>
       <label>Nom de l'application</label>
       <input type="text" id="c-name" placeholder="Mon Application">
-      <label>URL de la PWA (si hébergée en ligne)</label>
-      <input type="url" id="c-url" placeholder="https://mon-app.com (optionnel)">
       <div class="form-2">
-        <div>
-          <label>Package ID</label>
-          <input type="text" id="c-pkg" placeholder="com.nps.monapp">
-        </div>
-        <div>
-          <label>Version</label>
-          <input type="text" id="c-ver" value="1.0.0">
-        </div>
+        <div><label>Package ID</label><input type="text" id="c-pkg" placeholder="com.nps.monapp"></div>
+        <div><label>Version</label><input type="text" id="c-ver" value="1.0.0"></div>
       </div>
       <div class="form-2">
-        <div>
-          <label>Couleur thème</label>
-          <input type="color" id="c-theme" value="#7c6eff">
-        </div>
-        <div>
-          <label>SDK Android min.</label>
+        <div><label>Couleur thème</label><input type="color" id="c-theme" value="#7c6eff"></div>
+        <div><label>SDK min.</label>
           <select id="c-sdk">
-            <option value="21">Android 5.0 (API 21)</option>
-            <option value="23" selected>Android 6.0 (API 23)</option>
-            <option value="26">Android 8.0 (API 26)</option>
+            <option value="21">Android 5+ (API 21)</option>
+            <option value="23" selected>Android 6+ (API 23)</option>
+            <option value="26">Android 8+ (API 26)</option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- VISUELS -->
-    <div class="card">
-      <div class="card-title">🎨 Icône & Splash Screen</div>
-      <label>Icône de l'application (PNG, idéalement 512×512)</label>
-      <input type="file" id="c-icon" accept="image/png,image/jpeg">
-      <div id="c-icon-preview" style="font-size:11px;color:var(--muted);margin:4px 0 12px">Aucune icône sélectionnée — une icône par défaut sera utilisée.</div>
-      <label>Écran de démarrage / Splash Screen (PNG)</label>
-      <input type="file" id="c-splash" accept="image/png,image/jpeg">
-      <div id="c-splash-preview" style="font-size:11px;color:var(--muted);margin:4px 0 0">Aucun splash sélectionné — un fond de couleur thème sera utilisé.</div>
-    </div>
-
-    <!-- PERMISSIONS -->
-    <div class="card">
-      <div class="card-title">🔐 Autorisations Android</div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Cochez uniquement ce dont votre app a réellement besoin.</p>
-      <div class="perm-list">
-        <label class="perm-item"><input type="checkbox" id="perm-camera" value="android.permission.CAMERA"> 📷 Caméra</label>
-        <label class="perm-item"><input type="checkbox" id="perm-location" value="android.permission.ACCESS_FINE_LOCATION"> 📍 Géolocalisation</label>
-        <label class="perm-item"><input type="checkbox" id="perm-storage" value="android.permission.READ_EXTERNAL_STORAGE"> 💾 Stockage</label>
-        <label class="perm-item"><input type="checkbox" id="perm-notif" value="android.permission.POST_NOTIFICATIONS"> 🔔 Notifications</label>
-        <label class="perm-item"><input type="checkbox" id="perm-mic" value="android.permission.RECORD_AUDIO"> 🎙️ Microphone</label>
-      </div>
-    </div>
-
-    <!-- GITHUB CONNEXION -->
+    <!-- ══════════════════════════════════════════ -->
+    <!-- ZONE MÉTHODE 1 — ZIP local → APK         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="mzone-1">
       <div class="card">
-        <div class="card-title">🐙 Connexion GitHub (compilateur)</div>
+        <div class="card-title">📦 Votre projet ZIP</div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
-          Entrez votre token — le dépôt et la branche se remplissent <b>automatiquement</b>.<br>
-          Le token reste uniquement sur cet appareil, jamais envoyé ailleurs.
+          Importez votre ZIP (HTML/CSS/JS). L'app crée un dépôt GitHub, y pousse vos fichiers et compile l'APK automatiquement.
         </p>
+        <div class="upzone" id="upzone-m1"
+          onclick="document.getElementById('zip-m1-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleDropM1(event)">
+          <div class="upi">📦</div>
+          <p id="m1-zip-label">Glissez votre ZIP ici ou <b>appuyez</b></p>
+        </div>
+        <input type="file" id="zip-m1-input" accept=".zip" onchange="loadZipM1(this)" style="display:none">
+      </div>
+      <div class="card">
+        <div class="card-title">🔐 Autorisations Android</div>
+        <div class="perm-list" id="m1-perm-list">
+          <label class="perm-item"><input type="checkbox" value="android.permission.CAMERA"> 📷 Caméra</label>
+          <label class="perm-item"><input type="checkbox" value="android.permission.ACCESS_FINE_LOCATION"> 📍 Géolocalisation</label>
+          <label class="perm-item"><input type="checkbox" value="android.permission.READ_EXTERNAL_STORAGE"> 💾 Stockage</label>
+          <label class="perm-item"><input type="checkbox" value="android.permission.POST_NOTIFICATIONS"> 🔔 Notifications</label>
+          <label class="perm-item"><input type="checkbox" value="android.permission.RECORD_AUDIO"> 🎙️ Microphone</label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔑 Token GitHub</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Un dépôt privé sera créé automatiquement dans votre compte GitHub.</p>
+        <input type="password" id="m1-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Scopes requis : <b>repo</b> + <b>workflow</b></div>
+      </div>
+      <button class="btn btn-accent btn-full" onclick="runMethod1()" style="margin-bottom:10px">
+        🚀 Créer dépôt &amp; Compiler APK
+      </button>
+    </div>
 
-        <label>Personal Access Token (scope "repo" + "workflow")</label>
+    <!-- ══════════════════════════════════════════ -->
+    <!-- ZONE MÉTHODE 2 — URL → APK (TWA)         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="mzone-2" style="display:none">
+      <div class="card">
+        <div class="card-title">🌐 URL de votre site HTTPS</div>
+        <label>URL complète de la PWA</label>
+        <input type="url" id="c-url" placeholder="https://mon-site.com">
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">
+          Votre site sera converti en APK <b>TWA (Trusted Web Activity)</b> — méthode officielle Google.<br>
+          L'app crée un dépôt GitHub et compile l'APK automatiquement.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔑 Token GitHub</div>
+        <input type="password" id="m2-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Scopes requis : <b>repo</b> + <b>workflow</b></div>
+      </div>
+      <button class="btn btn-accent btn-full" onclick="runMethod2()" style="margin-bottom:10px">
+        🚀 Créer dépôt &amp; Compiler APK
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- ZONE MÉTHODE 3 — Dépôt GitHub existant   -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="mzone-3" style="display:none">
+
+      <div class="card">
+        <div class="card-title">🎨 Icône &amp; Splash Screen</div>
+        <label>Icône (PNG, 512×512 idéal)</label>
+        <input type="file" id="c-icon" accept="image/png,image/jpeg">
+        <div id="c-icon-preview" style="font-size:11px;color:var(--muted);margin:4px 0 12px">Aucune icône sélectionnée — icône par défaut.</div>
+        <label>Splash Screen (PNG)</label>
+        <input type="file" id="c-splash" accept="image/png,image/jpeg">
+        <div id="c-splash-preview" style="font-size:11px;color:var(--muted);margin:4px 0 0">Aucun splash sélectionné — fond thème utilisé.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔐 Autorisations Android</div>
+        <div class="perm-list">
+          <label class="perm-item"><input type="checkbox" id="perm-camera" value="android.permission.CAMERA"> 📷 Caméra</label>
+          <label class="perm-item"><input type="checkbox" id="perm-location" value="android.permission.ACCESS_FINE_LOCATION"> 📍 Géolocalisation</label>
+          <label class="perm-item"><input type="checkbox" id="perm-storage" value="android.permission.READ_EXTERNAL_STORAGE"> 💾 Stockage</label>
+          <label class="perm-item"><input type="checkbox" id="perm-notif" value="android.permission.POST_NOTIFICATIONS"> 🔔 Notifications</label>
+          <label class="perm-item"><input type="checkbox" id="perm-mic" value="android.permission.RECORD_AUDIO"> 🎙️ Microphone</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ Type de conversion</div>
+        <div class="mcards" id="method-cards">
+          <div class="mcard sel" id="mc-twa" onclick="selMethod('twa')">
+            <div class="mi">🔗</div>
+            <div><div class="mt">TWA (Trusted Web Activity)</div><div class="md">APK léger · HTTPS requis · manifest.json</div></div>
+            <div class="mcheck">✓</div>
+          </div>
+          <div class="mcard" id="mc-webview" onclick="selMethod('webview')">
+            <div class="mi">📱</div>
+            <div><div class="mt">WebView offline</div><div class="md">HTML local · Sans internet requis</div></div>
+            <div class="mcheck"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔍 Analyse du projet</div>
+        <div id="analysis-result"><div style="text-align:center;font-size:13px;color:var(--muted);padding:10px 0">Cliquez "Analyser" pour vérifier votre projet</div></div>
+        <button class="btn btn-ghost btn-full" onclick="analyzeProject()" style="margin-top:8px">🔍 Analyser</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🐙 Connexion GitHub (dépôt existant)</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+          Entrez votre token — le dépôt et la branche se remplissent <b>automatiquement</b>.
+        </p>
         <div style="display:flex;gap:8px;align-items:stretch">
           <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="flex:1" oninput="clearRepoCache()">
           <button class="btn btn-cyan" style="white-space:nowrap;padding:10px 14px" onclick="detectRepos()">🔍 Détecter</button>
         </div>
-
         <div id="gh-repo-wrap" style="display:none;margin-top:10px">
-          <label>Dépôt GitHub <span id="gh-repo-count" style="color:var(--muted);font-size:11px"></span></label>
+          <label>Dépôt <span id="gh-repo-count" style="color:var(--muted);font-size:11px"></span></label>
           <select id="gh-repo-sel" onchange="onRepoSelected()" style="width:100%;padding:10px;border-radius:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px">
-            <option value="">— sélectionner un dépôt —</option>
+            <option value="">— sélectionner —</option>
           </select>
         </div>
-
         <div id="gh-branch-wrap" style="display:none;margin-top:10px">
           <label>Branche <span id="gh-branch-count" style="color:var(--muted);font-size:11px"></span></label>
           <select id="gh-branch-sel" style="width:100%;padding:10px;border-radius:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px" onchange="document.getElementById('gh-branch').value=this.value">
             <option value="">— sélectionner une branche —</option>
           </select>
         </div>
-
-        <!-- Champs cachés — compatibilité avec le reste du code -->
         <input type="hidden" id="gh-owner" value="">
         <input type="hidden" id="gh-repo" value="">
         <input type="hidden" id="gh-branch" value="main">
-
-        <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="saveGithubConfig()">💾 Enregistrer la configuration</button>
+        <button class="btn btn-ghost btn-full" style="margin-top:10px" onclick="saveGithubConfig()">💾 Enregistrer</button>
         <div id="gh-status" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
       </div>
 
-      <!-- ANALYSE -->
-    <div class="card">
-      <div class="card-title">🔍 Analyse du projet</div>
-      <div id="analysis-result">
-        <div style="text-align:center;font-size:13px;color:var(--muted);padding:10px 0">
-          Cliquez "Analyser" pour vérifier votre projet
-        </div>
+      <div class="info warn" style="margin-bottom:14px">
+        <strong>ℹ️</strong> La compilation se fait sur <strong>GitHub Actions</strong> de votre dépôt.
       </div>
-      <button class="btn btn-ghost btn-full" onclick="analyzeProject()" style="margin-top:8px">🔍 Analyser le projet</button>
+
+      <button class="btn btn-accent btn-full" onclick="runConversion()" style="margin-bottom:10px">
+        🚀 Compiler APK depuis mon dépôt
+      </button>
     </div>
 
-    <!-- MÉTHODE -->
-    <div class="card">
-      <div class="card-title">⚡ Méthode de conversion</div>
-      <div class="mcards" id="method-cards">
-        <div class="mcard sel" id="mc-twa" onclick="selMethod('twa')">
-          <div class="mi">🔗</div>
-          <div><div class="mt">TWA (Trusted Web Activity)</div><div class="md">Officiel Google · APK léger · Nécessite HTTPS + manifest</div></div>
-          <div class="mcheck">✓</div>
-        </div>
-        <div class="mcard" id="mc-webview" onclick="selMethod('webview')">
-          <div class="mi">📱</div>
-          <div><div class="mt">WebView offline</div><div class="md">Parfait pour HTML local · Aucun serveur requis · Fonctionne sans internet</div></div>
-          <div class="mcheck"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- HONNÊTETÉ APK -->
-    <div class="info warn" style="margin-bottom:14px">
-      <strong>ℹ️ Important :</strong> La compilation réelle de l'APK se fait sur
-      <strong>GitHub Actions</strong> (votre propre dépôt, configuré ci-dessus).
-      Le résultat est un vrai fichier <strong>.apk</strong> signé, généré et suivi
-      entièrement depuis ce site.
-    </div>
-
-    <button class="btn btn-accent btn-full" onclick="runConversion()" style="margin-bottom:10px">
-      🚀 Générer le package Android
-    </button>
-
-    <!-- PROGRESS -->
+    <!-- ── PROGRESS COMMUN ── -->
     <div id="conv-progress" style="display:none;margin-top:14px">
       <div class="card">
-        <div class="card-title">⚡ Génération...</div>
+        <div class="card-title">⚡ Génération en cours...</div>
         <div class="prog"><div class="prog-fill" id="pbar"></div></div>
         <div class="term" id="conv-term"></div>
         <div id="step-list" style="margin-top:10px;display:none"></div>
       </div>
     </div>
 
-    <!-- RÉSULTAT -->
+    <!-- ── RÉSULTAT COMMUN ── -->
     <div id="conv-result" style="display:none;margin-top:14px">
       <div class="success-box">
         <div class="big">✅</div>
         <h3>Build envoyé à GitHub Actions</h3>
-        <p>La compilation réelle (Bubblewrap + Gradle) tourne sur les serveurs GitHub.<br>
-        Une fois terminée, l'APK est disponible en téléchargement dans l'onglet<br>
-        <b>Actions → votre run → Artifacts</b> de votre dépôt.</p>
+        <p>La compilation tourne sur les serveurs GitHub.<br>
+        APK disponible dans <b>Actions → votre run → Artifacts</b>.</p>
+        <div id="auto-repo-link" style="display:none;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Dépôt créé automatiquement :</div>
+          <button class="btn btn-cyan btn-full" id="auto-repo-btn" onclick="openLastRun()">🐙 Ouvrir le dépôt GitHub</button>
+        </div>
         <div class="btn-row" style="justify-content:center">
           <button class="btn btn-green" onclick="openLastRun()">🐙 Ouvrir le run GitHub</button>
-          <button class="btn btn-ghost" onclick="downloadPackage()">⬇️ ZIP source (sauvegarde)</button>
         </div>
       </div>
     </div>
@@ -1812,6 +1859,271 @@ function pushWebViewFiles(ghConfig, files, term){
     return nextFile();
   });
 }
+
+// ════════════════════════════════
+// MÉTHODE TABS — 3 méthodes de compilation
+// ════════════════════════════════
+var currentMethod = 1;
+var m1Files = {};
+
+function switchMethod(n) {
+  currentMethod = n;
+  var tabIds = ['mtab-1','mtab-2','mtab-3'];
+  var zoneIds = ['mzone-1','mzone-2','mzone-3'];
+  for (var i = 0; i < tabIds.length; i++) {
+    var isActive = (i + 1 === n);
+    var t = document.getElementById(tabIds[i]);
+    if (t) {
+      t.style.background = isActive ? 'var(--accent)' : 'transparent';
+      t.style.color = isActive ? '#fff' : 'var(--muted)';
+      t.style.borderColor = isActive ? 'var(--accent)' : 'var(--border)';
+    }
+    var z = document.getElementById(zoneIds[i]);
+    if (z) z.style.display = isActive ? 'block' : 'none';
+  }
+}
+
+// ── MÉTHODE 1 : ZIP ─────────────────────────────
+function handleDropM1(e) {
+  e.preventDefault();
+  document.getElementById('upzone-m1').classList.remove('drag');
+  if (e.dataTransfer.files[0]) loadZipM1FromFile(e.dataTransfer.files[0]);
+}
+
+function loadZipM1(inp) {
+  if (inp.files[0]) loadZipM1FromFile(inp.files[0]);
+  inp.value = '';
+}
+
+function loadZipM1FromFile(f) {
+  document.getElementById('m1-zip-label').textContent = 'Chargement de ' + f.name + '...';
+  JSZip.loadAsync(f).then(function(zip) {
+    m1Files = {};
+    var entries = [];
+    zip.forEach(function(path, entry) { if (!entry.dir) entries.push({path:path, entry:entry}); });
+    var idx = 0;
+    function next() {
+      if (idx >= entries.length) {
+        document.getElementById('m1-zip-label').innerHTML = '<b style="color:var(--green)">✓ ' + f.name + ' — ' + entries.length + ' fichiers chargés</b>';
+        return;
+      }
+      var item = entries[idx++];
+      item.entry.async('text').then(function(txt) {
+        m1Files[item.path] = txt; next();
+      }).catch(function() { m1Files[item.path] = '[binaire]'; next(); });
+    }
+    next();
+  }).catch(function(e) {
+    document.getElementById('m1-zip-label').textContent = 'Erreur ZIP: ' + e.message;
+  });
+}
+
+// ── AUTO-CRÉER UN DÉPÔT GITHUB ────────────────────────────────
+function autoCreateRepo(token, repoName) {
+  return fetch('https://api.github.com/user/repos', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    },
+    body: JSON.stringify({
+      name: repoName,
+      description: 'PWA to APK — NPS.NELSON',
+      private: true,
+      auto_init: true
+    })
+  }).then(function(resp) {
+    if (resp.status === 422) throw new Error('Nom de depot deja utilise. Reessayez.');
+    if (!resp.ok) return resp.json().then(function(e) { throw new Error('Erreur creation depot: ' + (e.message || resp.status)); });
+    return resp.json().then(function(data) {
+      return { owner: data.owner.login, repo: data.name, branch: 'main', htmlUrl: data.html_url };
+    });
+  });
+}
+
+// ── POUSSER UN FICHIER VERS GITHUB ───────────────────────────
+function pushFileToRepo(token, owner, repo, filePath, content, message, isPreB64) {
+  var b64 = isPreB64 ? content : btoa(unescape(encodeURIComponent(content)));
+  var url = 'https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + filePath;
+  var hdrs = {
+    'Authorization': 'Bearer ' + token,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+  return fetch(url, { headers: hdrs }).then(function(r) {
+    var body = { message: message || 'Add file', content: b64 };
+    if (r.ok) return r.json().then(function(d) { body.sha = d.sha; return body; });
+    return body;
+  }).then(function(body) {
+    return fetch(url, { method: 'PUT', headers: hdrs, body: JSON.stringify(body) });
+  });
+}
+
+// ── INITIALISER UN NOUVEAU DÉPÔT AVEC BOILERPLATE ANDROID ────
+var BOILERPLATE_WORKFLOW_B64 = 'bmFtZTogQnVpbGQgUFdBIHRvIEFuZHJvaWQgQVBLCgpvbjoKICBwdXNoOgogICAgYnJhbmNoZXM6IFsgbWFpbiBdCiAgd29ya2Zsb3dfZGlzcGF0Y2g6CiAgICBpbnB1dHM6CiAgICAgIGFwcF9uYW1lOgogICAgICAgIGRlc2NyaXB0aW9uOiAiTm9tIGRlIGwnYXBwbGljYXRpb24iCiAgICAgICAgcmVxdWlyZWQ6IGZhbHNlCiAgICAgICAgZGVmYXVsdDogIk1vbkFwcCIKICAgICAgcGFja2FnZV9pZDoKICAgICAgICBkZXNjcmlwdGlvbjogIlBhY2thZ2UgQW5kcm9pZCAoZXg6IGNvbS5ucHMubW9uYXBwKSIKICAgICAgICByZXF1aXJlZDogZmFsc2UKICAgICAgICBkZWZhdWx0OiAiY29tLm5wcy5wd2Euc3R1ZGlvIgogICAgICBwd2FfdXJsOgogICAgICAgIGRlc2NyaXB0aW9uOiAiVVJMIGRlIGxhIFBXQSBIVFRQUyIKICAgICAgICByZXF1aXJlZDogZmFsc2UKICAgICAgICBkZWZhdWx0OiAiIgogICAgICB0aGVtZV9jb2xvcjoKICAgICAgICBkZXNjcmlwdGlvbjogIkNvdWxldXIgdGjDqG1lICgjcnJnZ2JiKSIKICAgICAgICByZXF1aXJlZDogZmFsc2UKICAgICAgICBkZWZhdWx0OiAiIzdjNmVmZiIKICAgICAgdmVyc2lvbl9uYW1lOgogICAgICAgIGRlc2NyaXB0aW9uOiAiVmVyc2lvbiAoZXg6IDEuMC4wKSIKICAgICAgICByZXF1aXJlZDogZmFsc2UKICAgICAgICBkZWZhdWx0OiAiMS4wLjAiCiAgICAgIG1pbl9zZGs6CiAgICAgICAgZGVzY3JpcHRpb246ICJTREsgQW5kcm9pZCBtaW5pbXVtIgogICAgICAgIHJlcXVpcmVkOiBmYWxzZQogICAgICAgIGRlZmF1bHQ6ICIyMyIKICAgICAgcGVybWlzc2lvbnM6CiAgICAgICAgZGVzY3JpcHRpb246ICJQZXJtaXNzaW9ucyBzw6lwYXLDqWVzIHBhciB2aXJndWxlIgogICAgICAgIHJlcXVpcmVkOiBmYWxzZQogICAgICAgIGRlZmF1bHQ6ICIiCiAgICAgIGJ1aWxkX2lkOgogICAgICAgIGRlc2NyaXB0aW9uOiAiSUQgdW5pcXVlIGR1IGJ1aWxkIgogICAgICAgIHJlcXVpcmVkOiBmYWxzZQogICAgICAgIGRlZmF1bHQ6ICIiCgpqb2JzOgogIGJ1aWxkOgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgc3RlcHM6CiAgICAgIC0gbmFtZTogMS4gUsOpY3Vww6lyYXRpb24gZHUgY29kZSBzb3VyY2UKICAgICAgICB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHY0CgogICAgICAtIG5hbWU6IDIuIENvbmZpZ3VyYXRpb24gZGUgSmF2YSBKREsgMTcKICAgICAgICB1c2VzOiBhY3Rpb25zL3NldHVwLWphdmFAdjQKICAgICAgICB3aXRoOgogICAgICAgICAgZGlzdHJpYnV0aW9uOiAndGVtdXJpbicKICAgICAgICAgIGphdmEtdmVyc2lvbjogJzE3JwogICAgICAgICAgY2FjaGU6IGdyYWRsZQoKICAgICAgLSBuYW1lOiAzLiBDb25maWd1cmF0aW9uIGRlIGwnQW5kcm9pZCBTREsKICAgICAgICB1c2VzOiBhbmRyb2lkLWFjdGlvbnMvc2V0dXAtYW5kcm9pZEB2MwoKICAgICAgLSBuYW1lOiA0LiBJbnN0YWxsZXIgY29tcG9zYW50cyBTREsKICAgICAgICBydW46IHwKICAgICAgICAgIHllcyB8IHNka21hbmFnZXIgLS1saWNlbnNlcyB8fCB0cnVlCiAgICAgICAgICBzZGttYW5hZ2VyICJwbGF0Zm9ybXM7YW5kcm9pZC0zMyIgImJ1aWxkLXRvb2xzOzMzLjAuMiIgInBsYXRmb3JtLXRvb2xzIgoKICAgICAgLSBuYW1lOiA1LiBBcHBsaXF1ZXIgcGFyYW3DqHRyZXMgZHUgYnVpbGQKICAgICAgICBydW46IHwKICAgICAgICAgIEFQUF9OQU1FPSIke3sgZ2l0aHViLmV2ZW50LmlucHV0cy5hcHBfbmFtZSB8fCAnUFdBLUFQSyBTdHVkaW8nIH19IgogICAgICAgICAgUEtHPSIke3sgZ2l0aHViLmV2ZW50LmlucHV0cy5wYWNrYWdlX2lkIHx8ICdjb20ubnBzLnB3YS5zdHVkaW8nIH19IgogICAgICAgICAgVkVSPSIke3sgZ2l0aHViLmV2ZW50LmlucHV0cy52ZXJzaW9uX25hbWUgfHwgJzEuMC4wJyB9fSIKICAgICAgICAgIGVjaG8gIkFQUF9OQU1FPSRBUFBfTkFNRSIgPj4gJEdJVEhVQl9FTlYKICAgICAgICAgIGVjaG8gIlBLRz0kUEtHIiA+PiAkR0lUSFVCX0VOVgogICAgICAgICAgZWNobyAiVkVSPSRWRVIiID4+ICRHSVRIVUJfRU5WCiAgICAgICAgICAjIE1ldHRyZSDDoCBqb3VyIGxlIG5vbSBkZSBsJ2FwcCBkYW5zIHN0cmluZ3MueG1sCiAgICAgICAgICBzZWQgLWkgInN8PHN0cmluZyBuYW1lPVwiYXBwX25hbWVcIj4uKjwvc3RyaW5nPnw8c3RyaW5nIG5hbWU9XCJhcHBfbmFtZVwiPiRBUFBfTkFNRTwvc3RyaW5nPnwiIGFwcC9zcmMvbWFpbi9yZXMvdmFsdWVzL3N0cmluZ3MueG1sIHx8IHRydWUKICAgICAgICAgICMgTWV0dHJlIMOgIGpvdXIgbGUgbmFtZXNwYWNlIGV0IGFwcGxpY2F0aW9uSWQKICAgICAgICAgIHNlZCAtaSAic3xuYW1lc3BhY2UgJ2NvbS5ucHMucHdhLnN0dWRpbyd8bmFtZXNwYWNlICckUEtHJ3xnIiBhcHAvYnVpbGQuZ3JhZGxlIHx8IHRydWUKICAgICAgICAgIHNlZCAtaSAic3xhcHBsaWNhdGlvbklkIFwiY29tLm5wcy5wd2Euc3R1ZGlvXCJ8YXBwbGljYXRpb25JZCBcIiRQS0dcInxnIiBhcHAvYnVpbGQuZ3JhZGxlIHx8IHRydWUKICAgICAgICAgIHNlZCAtaSAic3x2ZXJzaW9uTmFtZSBcIjEuMFwifHZlcnNpb25OYW1lIFwiJFZFUlwifGciIGFwcC9idWlsZC5ncmFkbGUgfHwgdHJ1ZQogICAgICAgICAgZWNobyAi4pyFIFBhcmFtw6h0cmVzIGFwcGxpcXXDqXMiCgogICAgICAtIG5hbWU6IDYuIFTDqWzDqWNoYXJnZXIgR3JhZGxlIFdyYXBwZXIgSkFSCiAgICAgICAgcnVuOiB8CiAgICAgICAgICBta2RpciAtcCBncmFkbGUvd3JhcHBlcgogICAgICAgICAgY3VybCAtZnNTTCAtbyBncmFkbGUvd3JhcHBlci9ncmFkbGUtd3JhcHBlci5qYXIgXAogICAgICAgICAgICBodHRwczovL2dpdGh1Yi5jb20vZ3JhZGxlL2dyYWRsZS9yYXcvdjguMi4wL2dyYWRsZS93cmFwcGVyL2dyYWRsZS13cmFwcGVyLmphcgoKICAgICAgLSBuYW1lOiA3LiBSZW5kcmUgZ3JhZGxldyBleMOpY3V0YWJsZQogICAgICAgIHJ1bjogY2htb2QgK3ggZ3JhZGxldwoKICAgICAgLSBuYW1lOiA4LiBDb21waWxhdGlvbiBBUEsgRGVidWcKICAgICAgICBydW46IC4vZ3JhZGxldyBhc3NlbWJsZURlYnVnIC0tbm8tZGFlbW9uIC0tc3RhY2t0cmFjZQoKICAgICAgLSBuYW1lOiA5LiBQdWJsaWNhdGlvbiBBUEsKICAgICAgICB1c2VzOiBhY3Rpb25zL3VwbG9hZC1hcnRpZmFjdEB2NAogICAgICAgIHdpdGg6CiAgICAgICAgICBuYW1lOiBhcGstJHt7IGdpdGh1Yi5ldmVudC5pbnB1dHMuYnVpbGRfaWQgfHwgJ2xhdGVzdCcgfX0KICAgICAgICAgIHBhdGg6IGFwcC9idWlsZC9vdXRwdXRzL2Fway9kZWJ1Zy8qLmFwawogICAgICAgICAgcmV0ZW50aW9uLWRheXM6IDMwCgogICAgICAtIG5hbWU6IDEwLiBJbmZvcyBkdSBidWlsZAogICAgICAgIHJ1bjogfAogICAgICAgICAgZWNobyAiPT09IEJ1aWxkIHRlcm1pbsOpIGF2ZWMgc3VjY8OocyA9PT0iCiAgICAgICAgICBlY2hvICJBcHA6ICR7eyBnaXRodWIuZXZlbnQuaW5wdXRzLmFwcF9uYW1lIHx8ICdQV0EtQVBLIFN0dWRpbycgfX0iCiAgICAgICAgICBlY2hvICJQYWNrYWdlOiAke3sgZ2l0aHViLmV2ZW50LmlucHV0cy5wYWNrYWdlX2lkIHx8ICdjb20ubnBzLnB3YS5zdHVkaW8nIH19IgogICAgICAgICAgZWNobyAiVmVyc2lvbjogJHt7IGdpdGh1Yi5ldmVudC5pbnB1dHMudmVyc2lvbl9uYW1lIHx8ICcxLjAuMCcgfX0iCiAgICAgICAgICBscyAtbGggYXBwL2J1aWxkL291dHB1dHMvYXBrL2RlYnVnLyouYXBrIDI+L2Rldi9udWxsIHx8IGVjaG8gIkFQSyBub24gdHJvdXbDqSIK';
+
+function setupNewRepo(token, owner, repo, appName, pkg, method, pwaUrl, webFiles, term) {
+  termLine(term, 'Configuration du projet Android dans le depot...', 'i');
+  var pkgPath = pkg.replace(/\./g, '/');
+  var safeName = appName.replace(/[^a-zA-Z0-9_]/g, '_') || 'MonApp';
+
+  var gradleWrapperProps = [
+    'distributionBase=GRADLE_USER_HOME',
+    'distributionPath=wrapper/dists',
+    'distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-bin.zip',
+    'networkTimeout=10000',
+    'validateDistributionUrl=true',
+    'zipStoreBase=GRADLE_USER_HOME',
+    'zipStorePath=wrapper/dists'
+  ].join('\n');
+
+  var gradlew = '#!/usr/bin/env sh\nAPP_NAME="Gradle"\nAPP_BASE_NAME=`basename "$0"`\nAPP_HOME=`dirname "$0"`\nAPP_HOME=`( cd "$APP_HOME" && pwd -P )` || exit\nCLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar\ndie () { echo; echo "ERROR: $*"; echo; exit 1; } >&2\nwarn () { echo "$*"; } >&2\ncygwin=false; msys=false; darwin=false; nonstop=false\ncase "`uname`" in\n  CYGWIN* ) cygwin=true ;;\n  Darwin* ) darwin=true ;;\n  MSYS* | MINGW* ) msys=true ;;\n  NONSTOP* ) nonstop=true ;;\nesac\nJAVACMD="java"\nif [ -n "$JAVA_HOME" ] ; then\n  if [ -x "$JAVA_HOME/jre/sh/java" ] ; then JAVACMD="$JAVA_HOME/jre/sh/java"\n  else JAVACMD="$JAVA_HOME/bin/java"; fi\n  if [ ! -x "$JAVACMD" ] ; then die "ERROR: JAVA_HOME invalid: $JAVA_HOME"; fi\nelse\n  which java >/dev/null 2>&1 || die "ERROR: no java found"\nfi\nexec "$JAVACMD" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"\n';
+
+  var rootBuildGradle = 'buildscript {\n    repositories { google(); mavenCentral() }\n    dependencies { classpath \'com.android.tools.build:gradle:8.2.2\' }\n}\n';
+
+  var settingsGradle = 'pluginManagement {\n    repositories { google(); mavenCentral(); gradlePluginPortal() }\n}\ndependencyResolutionManagement {\n    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)\n    repositories { google(); mavenCentral() }\n}\nrootProject.name = "' + safeName + '"\ninclude \':app\'\n';
+
+  var appBuildGradle = 'plugins { id \'com.android.application\' }\nandroid {\n    namespace \'' + pkg + '\'\n    compileSdk 33\n    defaultConfig {\n        applicationId "' + pkg + '"\n        minSdk 21\n        targetSdk 33\n        versionCode 1\n        versionName "1.0"\n    }\n    buildTypes {\n        debug { debuggable true }\n        release { minifyEnabled false; proguardFiles getDefaultProguardFile(\'proguard-android-optimize.txt\'), \'proguard-rules.pro\' }\n    }\n    compileOptions {\n        sourceCompatibility JavaVersion.VERSION_1_8\n        targetCompatibility JavaVersion.VERSION_1_8\n    }\n}\ndependencies {\n    implementation \'androidx.appcompat:appcompat:1.6.1\'\n}\n';
+
+  var manifest = '<?xml version="1.0" encoding="utf-8"?>\n<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET" />\n    <application\n        android:allowBackup="true"\n        android:icon="@mipmap/ic_launcher"\n        android:label="@string/app_name"\n        android:supportsRtl="true"\n        android:theme="@style/Theme.AppCompat.NoActionBar"\n        android:usesCleartextTraffic="true">\n        <activity android:name=".MainActivity" android:exported="true"\n            android:configChanges="orientation|screenSize|keyboardHidden">\n            <intent-filter>\n                <action android:name="android.intent.action.MAIN"/>\n                <category android:name="android.intent.category.LAUNCHER"/>\n            </intent-filter>\n        </activity>\n    </application>\n</manifest>\n';
+
+  var mainJava = 'package ' + pkg + ';\nimport android.annotation.SuppressLint;\nimport android.app.Activity;\nimport android.content.Intent;\nimport android.net.Uri;\nimport android.os.Bundle;\nimport android.webkit.*;\npublic class MainActivity extends Activity {\n    private WebView webView;\n    @SuppressLint({"SetJavaScriptEnabled"})\n    @Override protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        webView = new WebView(this);\n        setContentView(webView);\n        WebSettings s = webView.getSettings();\n        s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true);\n        s.setAllowFileAccess(true); s.setAllowFileAccessFromFileURLs(true);\n        s.setAllowUniversalAccessFromFileURLs(true);\n        s.setUseWideViewPort(true); s.setCacheMode(WebSettings.LOAD_DEFAULT);\n        webView.setWebViewClient(new WebViewClient() {\n            @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {\n                String url = r.getUrl().toString();\n                if (url.startsWith("file://")) return false;\n                try { Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url)); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); startActivity(i); } catch (Exception e) {}\n                return true;\n            }\n        });\n        webView.setWebChromeClient(new WebChromeClient());\n        webView.loadUrl("file:///android_asset/www/index.html");\n    }\n    @Override public void onBackPressed() { if (webView.canGoBack()) webView.goBack(); else super.onBackPressed(); }\n}\n';
+
+  var strings = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <string name="app_name">' + appName + '</string>\n</resources>\n';
+
+  var styles = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">\n        <item name="android:windowBackground">#0a0a14</item>\n    </style>\n</resources>\n';
+
+  var indexHtml = method === 'webview'
+    ? (webFiles['index.html'] || Object.values(webFiles)[0] || '<!DOCTYPE html><html><body><h1>' + appName + '</h1></body></html>')
+    : '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + appName + '</title></head><body style="background:#0a0a14;color:#fff;text-align:center;padding:40px"><h1>' + appName + '</h1><p>Chargement...</p></body></html>';
+
+  var fileQueue = [
+    {path:'gradlew', content:gradlew, msg:'Add gradlew'},
+    {path:'gradle/wrapper/gradle-wrapper.properties', content:gradleWrapperProps, msg:'Add Gradle wrapper props'},
+    {path:'build.gradle', content:rootBuildGradle, msg:'Add root build.gradle'},
+    {path:'settings.gradle', content:settingsGradle, msg:'Add settings.gradle'},
+    {path:'app/build.gradle', content:appBuildGradle, msg:'Add app build.gradle'},
+    {path:'app/src/main/AndroidManifest.xml', content:manifest, msg:'Add AndroidManifest'},
+    {path:'app/src/main/java/'+pkgPath+'/MainActivity.java', content:mainJava, msg:'Add MainActivity'},
+    {path:'app/src/main/res/values/strings.xml', content:strings, msg:'Add strings'},
+    {path:'app/src/main/res/values/styles.xml', content:styles, msg:'Add styles'},
+    {path:'.github/workflows/build.yml', content:BOILERPLATE_WORKFLOW_B64, msg:'Add build workflow', isB64:true}
+  ];
+
+  // Add web files
+  var wkeys = Object.keys(webFiles);
+  for (var wi = 0; wi < wkeys.length; wi++) {
+    fileQueue.push({path:'app/src/main/assets/www/'+wkeys[wi], content:webFiles[wkeys[wi]]||'', msg:'Add '+wkeys[wi]});
+  }
+  if (!wkeys.length || !webFiles['index.html']) {
+    fileQueue.push({path:'app/src/main/assets/www/index.html', content:indexHtml, msg:'Add index.html'});
+  }
+
+  var idx = 0;
+  function pushNext() {
+    if (idx >= fileQueue.length) return Promise.resolve();
+    var f = fileQueue[idx++];
+    var shortName = f.path.split('/').pop();
+    termLine(term, '  ' + shortName, 'i');
+    return pushFileToRepo(token, owner, repo, f.path, f.content, f.msg, f.isB64).then(function() {
+      return sleep(300).then(function() { return pushNext(); });
+    }).catch(function(e) {
+      termLine(term, '  Avert: ' + shortName + ' — ' + e.message, 'w');
+      return sleep(300).then(function() { return pushNext(); });
+    });
+  }
+
+  return sleep(5000).then(function() { return pushNext(); });
+}
+
+// ── ORCHESTRATEUR COMMUN MÉTHODES 1 & 2 ─────────────────────
+function runAutoMethod(method) {
+  var name = document.getElementById('c-name').value.trim() || 'MonApp';
+  var pkg = document.getElementById('c-pkg').value.trim() || ('com.nps.' + name.toLowerCase().replace(/[^a-z0-9]/g,''));
+  var theme = document.getElementById('c-theme').value || '#7c6eff';
+  var sdk = document.getElementById('c-sdk').value || '23';
+  var token = document.getElementById(method === 1 ? 'm1-token' : 'm2-token').value.trim();
+  var pwaUrl = method === 2 ? document.getElementById('c-url').value.trim() : '';
+  var perms = [];
+  if (method === 1) {
+    var pchk = document.querySelectorAll('#m1-perm-list input:checked');
+    for (var i = 0; i < pchk.length; i++) perms.push(pchk[i].value);
+  }
+
+  if (!token) { toast('Entrez votre token GitHub', 'w'); return; }
+  if (method === 1 && !Object.keys(m1Files).length) { toast('Importez un fichier ZIP d\'abord', 'w'); return; }
+  if (method === 2) {
+    if (!pwaUrl) { toast('Entrez l\'URL de votre site', 'w'); return; }
+    var pcheck = null;
+    try { pcheck = new URL(pwaUrl); } catch(e) {}
+    if (!pcheck || pcheck.protocol !== 'https:') { toast('L\'URL doit commencer par https://', 'w'); return; }
+  }
+
+  document.getElementById('conv-progress').style.display = 'block';
+  document.getElementById('conv-result').style.display = 'none';
+  document.getElementById('conv-progress').scrollIntoView({behavior:'smooth', block:'start'});
+  var term = document.getElementById('conv-term');
+  var bar = document.getElementById('pbar');
+  term.innerHTML = ''; bar.style.width = '0%'; bar.style.background = '';
+
+  var buildId = 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  var ts = Date.now().toString(36).slice(-4);
+  var repoName = 'pwa-apk-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').substring(0,18) + '-' + ts;
+  var createdOwner, createdRepo, createdRepoUrl;
+
+  termLine(term, 'Creation du depot: ' + repoName, 'i');
+  bar.style.width = '5%';
+
+  autoCreateRepo(token, repoName).then(function(info) {
+    createdOwner = info.owner; createdRepo = info.repo; createdRepoUrl = info.htmlUrl;
+    bar.style.width = '15%';
+    termLine(term, 'Depot cree: ' + createdOwner + '/' + createdRepo, 's');
+    termLine(term, 'Envoi du projet Android...', 'i');
+    var webFiles = method === 1 ? m1Files : {};
+    var convMethod = method === 1 ? 'webview' : 'twa';
+    return setupNewRepo(token, createdOwner, createdRepo, name, pkg, convMethod, pwaUrl, webFiles, term);
+  }).then(function() {
+    bar.style.width = '45%';
+    termLine(term, 'Fichiers envoyes. Lancement du build...', 's');
+    var ghConfig = {token:token, owner:createdOwner, repo:createdRepo, branch:'main'};
+    return sleep(3000).then(function() {
+      return githubApi('/actions/workflows/build.yml/dispatches', ghConfig, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          ref:'main',
+          inputs:{app_name:name, package_id:pkg, pwa_url:pwaUrl||'', theme_color:theme,
+                  version_name:'1.0.0', min_sdk:sdk, permissions:perms.join(','), build_id:buildId}
+        })
+      });
+    });
+  }).then(function(dispatchResp) {
+    if (!dispatchResp.ok && dispatchResp.status !== 204) {
+      return dispatchResp.text().catch(function(){return '';}).then(function(t){
+        throw new Error('Workflow erreur (' + dispatchResp.status + '): ' + t.slice(0,100));
+      });
+    }
+    bar.style.width = '55%';
+    termLine(term, 'Build declenche ! Suivi en cours...', 's');
+    termLine(term, 'Depot: ' + createdRepoUrl, 'i');
+    // Store last config for openLastRun
+    S.lastConfig = {name:name, url:pwaUrl, pkg:pkg, ghConfig:{owner:createdOwner, repo:createdRepo}};
+    var autoLink = document.getElementById('auto-repo-link');
+    var autoBtn = document.getElementById('auto-repo-btn');
+    if (autoLink) autoLink.style.display = 'block';
+    if (autoBtn) autoBtn.onclick = function() { openExternalUrl(createdRepoUrl + '/actions'); };
+    var ghConfig = {token:token, owner:createdOwner, repo:createdRepo, branch:'main'};
+    return pollForRunId(ghConfig, buildId, term, bar, name, pwaUrl, pkg, perms);
+  }).catch(function(e) {
+    termLine(term, 'Erreur: ' + (e.message || e), 'e');
+    bar.style.width='100%'; bar.style.background='var(--red)';
+  });
+}
+
+function runMethod1() { runAutoMethod(1); }
+function runMethod2() { runAutoMethod(2); }
 
 // ════════════════════════════════
 // CLICK EXTERIEUR — ferme dropdown
