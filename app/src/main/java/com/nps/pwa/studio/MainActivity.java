@@ -16,6 +16,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import java.lang.ref.WeakReference;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -62,7 +63,8 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         s.setMediaPlaybackRequiresUserGesture(false);
 
-        webView.addJavascriptInterface(new AndroidBridge(), "AndroidBridge");
+        // 🟡 FIX: WeakReference passée au bridge pour éviter la fuite mémoire
+        webView.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -79,20 +81,32 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/www/index.html");
     }
 
-    public class AndroidBridge {
+    // 🟡 FIX: static inner class + WeakReference<Activity> pour éviter la fuite mémoire
+    private static class AndroidBridge {
+        private final WeakReference<Activity> activityRef;
+
+        AndroidBridge(Activity activity) {
+            this.activityRef = new WeakReference<>(activity);
+        }
+
         @JavascriptInterface
         public void openUrl(String url) {
+            Activity a = activityRef.get();
+            if (a == null) return;
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try { startActivity(intent); } catch (Exception e) { /* ignore */ }
+            try { a.startActivity(intent); } catch (Exception e) { /* ignore */ }
         }
+
         @JavascriptInterface
         public void share(String text) {
+            Activity a = activityRef.get();
+            if (a == null) return;
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, text);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try { startActivity(Intent.createChooser(intent, "Partager")); } catch (Exception e) { /* ignore */ }
+            try { a.startActivity(Intent.createChooser(intent, "Partager")); } catch (Exception e) { /* ignore */ }
         }
     }
 
