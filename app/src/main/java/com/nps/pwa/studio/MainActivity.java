@@ -63,7 +63,6 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         s.setMediaPlaybackRequiresUserGesture(false);
 
-        // 🟡 FIX: WeakReference passée au bridge pour éviter la fuite mémoire
         webView.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
 
         webView.setWebViewClient(new WebViewClient() {
@@ -81,7 +80,6 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/www/index.html");
     }
 
-    // 🟡 FIX: static inner class + WeakReference<Activity> pour éviter la fuite mémoire
     private static class AndroidBridge {
         private final WeakReference<Activity> activityRef;
 
@@ -91,22 +89,22 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void openUrl(String url) {
-            Activity a = activityRef.get();
-            if (a == null) return;
+            Activity activity = activityRef.get();
+            if (activity == null) return;
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try { a.startActivity(intent); } catch (Exception e) { /* ignore */ }
+            try { activity.startActivity(intent); } catch (Exception e) { /* ignore */ }
         }
 
         @JavascriptInterface
         public void share(String text) {
-            Activity a = activityRef.get();
-            if (a == null) return;
+            Activity activity = activityRef.get();
+            if (activity == null) return;
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, text);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try { a.startActivity(Intent.createChooser(intent, "Partager")); } catch (Exception e) { /* ignore */ }
+            try { activity.startActivity(Intent.createChooser(intent, "Partager")); } catch (Exception e) { /* ignore */ }
         }
     }
 
