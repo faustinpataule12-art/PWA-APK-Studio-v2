@@ -65,6 +65,8 @@ jobs:
           APP_NAME="${{ github.event.inputs.app_name || 'PWA-APK Studio' }}"
           PKG="${{ github.event.inputs.package_id || 'com.nps.pwa.studio' }}"
           VER="${{ github.event.inputs.version_name || '1.0.0' }}"
+          MIN_SDK="${{ github.event.inputs.min_sdk || '23' }}"
+          PWA_URL="${{ github.event.inputs.pwa_url }}"
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "PKG=$PKG" >> $GITHUB_ENV
           echo "VER=$VER" >> $GITHUB_ENV
@@ -74,31 +76,35 @@ jobs:
           sed -i "s|namespace 'com.nps.pwa.studio'|namespace '$PKG'|g" app/build.gradle || true
           sed -i "s|applicationId \"com.nps.pwa.studio\"|applicationId \"$PKG\"|g" app/build.gradle || true
           sed -i "s|versionName \"1.0\"|versionName \"$VER\"|g" app/build.gradle || true
-          echo "✅ Paramètres appliqués"
+          # 🔴 FIX: Injecter le minSdk personnalisé
+          sed -i "s|minSdk [0-9]*|minSdk $MIN_SDK|g" app/build.gradle || true
+          # 🔴 FIX: Injecter l'URL de la PWA si fournie
+          if [ -n "$PWA_URL" ]; then
+            sed -i "s|webView.loadUrl(\"file:///android_asset/www/index.html\")|webView.loadUrl(\"$PWA_URL\")|g" \
+              app/src/main/java/com/nps/pwa/studio/MainActivity.java || true
+            echo "PWA_URL injectée : $PWA_URL"
+          fi
+          echo "✅ Paramètres appliqués — minSdk=$MIN_SDK, pwa_url=${PWA_URL:-local}"
 
-      - name: 6. Télécharger Gradle Wrapper JAR
-        run: |
-          mkdir -p gradle/wrapper
-          curl -fsSL -o gradle/wrapper/gradle-wrapper.jar \
-            https://github.com/gradle/gradle/raw/v8.2.0/gradle/wrapper/gradle-wrapper.jar
-
-      - name: 7. Rendre gradlew exécutable
+      - name: 6. Rendre gradlew exécutable
         run: chmod +x gradlew
 
-      - name: 8. Compilation APK Debug
+      - name: 7. Compilation APK Debug
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: 9. Publication APK
+      - name: 8. Publication APK
         uses: actions/upload-artifact@v4
         with:
           name: apk-${{ github.event.inputs.build_id || 'latest' }}
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
 
-      - name: 10. Infos du build
+      - name: 9. Infos du build
         run: |
           echo "=== Build terminé avec succès ==="
-          echo "App: ${{ github.event.inputs.app_name || 'PWA-APK Studio' }}"
+          echo "App    : ${{ github.event.inputs.app_name || 'PWA-APK Studio' }}"
           echo "Package: ${{ github.event.inputs.package_id || 'com.nps.pwa.studio' }}"
           echo "Version: ${{ github.event.inputs.version_name || '1.0.0' }}"
+          echo "minSdk : ${{ github.event.inputs.min_sdk || '23' }}"
+          echo "PWA URL: ${{ github.event.inputs.pwa_url || '(local assets)' }}"
           ls -lh app/build/outputs/apk/debug/*.apk 2>/dev/null || echo "APK non trouvé"
